@@ -1,93 +1,222 @@
 @import "tailwindcss";
 
-@theme {
-  /* Foundation */
-  --color-primary: #f55694;
-  --color-accent-blue: #56b7f5;
-  --color-dark-base: #0b101d;
-  --color-dark-card: #161b26;
-  --color-dark-card-secondary: #1a202d;
-  --color-light-base: #f8f9fb;
-  --color-light-card: #ffffff;
-  --color-light-card-secondary: #f3f4f8;
-  --color-primary-text-dark: #303030;
-  --color-primary-text-light: #f3f4f8;
-  --color-secondary-text-dark: #555555;
-  --color-secondary-text-light: #c0c0c0;
+/* =====================================================================
+   Kalaanba — Unified Design Tokens.
+   `--kx-*` tokens are the source of truth, defined globally and
+   toggled by `html.light`. Tailwind utilities are mapped onto them
+   via `@theme inline` so `bg-surface` and `bg-[var(--kx-card)]`
+   resolve to the same color.
+   ===================================================================== */
 
-  /* Semantic tokens — swapped by html.light */
-  --color-bg: #0b101d;
-  --color-surface: #161b26;
-  --color-surface-2: #1a202d;
-  --color-border: #1a202d;
-  --color-fg: #f3f4f8;
-  --color-fg-muted: #c0c0c0;
-  --color-on-primary: #0b101d;
-
-  /* Shape */
-  --radius-button: 1.35rem;
-  --radius-card: 1.9rem;
-  --radius-control: 1.45rem;
-
-  /* Motion */
-  --ease-alive: cubic-bezier(0.22, 0.61, 0.36, 1);
-
-  /* Type */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-manrope), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-
-  /* Animations */
-  --animate-live-pulse: kalaanba-pulse 2.4s ease-in-out infinite;
-}
-
-/* Dark by default */
 :root {
   color-scheme: dark;
-  --color-bg: #0b101d;
-  --color-surface: #161b26;
-  --color-surface-2: #1a202d;
-  --color-border: #1a202d;
-  --color-fg: #f3f4f8;
-  --color-fg-muted: #c0c0c0;
-  --color-on-primary: #0b101d;
+
+  /* Brand */
+  --kx-pink: #f55694;
+  --kx-blue: #56b7f5;
+
+  /* Semantic state */
+  --kx-success: #16a34a;
+  --kx-warning: #ea580c;
+  --kx-danger:  #f55656;
+
+  /* Neutrals — dark default */
+  --kx-bg: #0b101d;
+  --kx-card: #161b26;
+  --kx-card-2: #1a202d;
+  --kx-fg: #f3f4f8;
+  --kx-fg-muted: #c0c0c0;
+  --kx-on-pink: #ffffff;
+  --kx-on-blue: #0b101d;
+  --kx-border: rgba(255, 255, 255, 0.05);
+  --kx-border-strong: rgba(255, 255, 255, 0.10);
+  --kx-ring: rgba(245, 86, 148, 0.18);
+
+  /* Shadows */
+  --kx-shadow-sm: 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+  --kx-shadow-md: 0 14px 36px -14px rgba(0, 0, 0, 0.55);
+  --kx-shadow-lg: 0 30px 60px -30px rgba(0, 0, 0, 0.7);
+  --kx-shadow-pink: 0 18px 40px -18px rgba(245, 86, 148, 0.45);
+
+  /* Shape */
+  --kx-r-pill: 999px;
+  --kx-r-btn: 1.1rem;
+  --kx-r-card: 1.6rem;
+  --kx-r-card-lg: 2rem;
+  --kx-r-tile: 1.25rem;
+
+  /* Motion */
+  --kx-ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --kx-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Type */
+  --kx-font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --kx-font-display: var(--font-sora), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
 html.light {
   color-scheme: light;
-  --color-bg: #f8f9fb;
-  --color-surface: #ffffff;
-  --color-surface-2: #f3f4f8;
-  --color-border: #f3f4f8;
-  --color-fg: #303030;
-  --color-fg-muted: #555555;
-  --color-on-primary: #303030;
+  --kx-bg: #f8f9fb;
+  --kx-card: #ffffff;
+  --kx-card-2: #f3f4f8;
+  --kx-fg: #303030;
+  --kx-fg-muted: #555555;
+  --kx-on-pink: #ffffff;
+  --kx-on-blue: #0b101d;
+  --kx-border: rgba(15, 18, 30, 0.06);
+  --kx-border-strong: rgba(15, 18, 30, 0.12);
+  --kx-ring: rgba(245, 86, 148, 0.14);
+  --kx-shadow-sm: 0 2px 8px -2px rgba(15, 18, 30, 0.06);
+  --kx-shadow-md: 0 12px 30px -14px rgba(15, 18, 30, 0.18);
+  --kx-shadow-lg: 0 30px 60px -30px rgba(15, 18, 30, 0.25);
+  --kx-shadow-pink: 0 18px 40px -18px rgba(245, 86, 148, 0.55);
+}
+
+/* Tailwind v4 theme — aliases that point at the unified tokens so
+   utilities like `bg-bg`, `text-fg`, `bg-surface`, `border-border`,
+   `text-primary`, `font-display`, `ease-alive`, `rounded-card`, and
+   `animate-live-pulse` keep working across the codebase. */
+@theme inline {
+  --color-primary: var(--kx-pink);
+  --color-accent-blue: var(--kx-blue);
+
+  --color-bg: var(--kx-bg);
+  --color-surface: var(--kx-card);
+  --color-surface-2: var(--kx-card-2);
+  --color-border: var(--kx-border);
+  --color-fg: var(--kx-fg);
+  --color-fg-muted: var(--kx-fg-muted);
+  --color-on-primary: var(--kx-on-pink);
+
+  --color-success: var(--kx-success);
+  --color-warning: var(--kx-warning);
+  --color-danger:  var(--kx-danger);
+
+  --radius-button: var(--kx-r-btn);
+  --radius-card: var(--kx-r-card);
+  --radius-control: var(--kx-r-tile);
+
+  --ease-alive: var(--kx-ease);
+
+  --font-sans: var(--kx-font-sans);
+  --font-display: var(--kx-font-display);
+
+  --animate-live-pulse: kx-pulse 2.4s ease-in-out infinite;
 }
 
 body {
-  font-family: var(--font-sans);
-  background-color: var(--color-bg);
-  color: var(--color-fg);
+  background: var(--kx-bg);
+  color: var(--kx-fg);
+  font-family: var(--kx-font-sans);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
+  background: var(--kx-pink);
+  color: var(--kx-on-pink);
 }
 
-@keyframes kalaanba-pulse {
+/* ---------- Cursor: anything clickable ---------- */
+button:not(:disabled),
+a,
+summary,
+label:has(input:not([disabled])),
+[role="button"]:not([aria-disabled="true"]),
+[role="switch"]:not([aria-disabled="true"]),
+[role="radio"]:not([aria-disabled="true"]),
+[role="checkbox"]:not([aria-disabled="true"]),
+[role="tab"]:not([aria-disabled="true"]),
+[role="option"]:not([aria-disabled="true"]),
+[role="menuitem"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* ---------- Scoped scroll skin ---------- */
+.kx-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--kx-border-strong) transparent;
+}
+.kx-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+.kx-scroll::-webkit-scrollbar-thumb {
+  background: var(--kx-border-strong); border-radius: 999px;
+}
+
+/* ---------- Animations ---------- */
+@keyframes kx-pulse {
   0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.68; transform: scale(0.92); }
+  50%      { opacity: 0.55; transform: scale(0.78); }
+}
+@keyframes kx-pulse-ring {
+  0%   { transform: scale(0.6); opacity: 0.7; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+@keyframes kx-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes kx-pop-in {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.985); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes kx-rise {
+  0%   { opacity: 0; transform: translateY(14px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+@keyframes kx-toast-in {
+  0%   { opacity: 0; transform: translateY(14px) scale(0.96); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes kx-spin {
+  to { transform: rotate(360deg); }
+}
+@keyframes kx-progress {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes kx-popover {
+  0%   { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  100% { opacity: 1; transform: translateY(0)    scale(1); }
+}
+@keyframes kx-check {
+  0%   { stroke-dashoffset: 24; }
+  100% { stroke-dashoffset: 0; }
+}
+@keyframes kx-aurora-a {
+  0%   { transform: translate3d(0, 0, 0)        scale(1);    }
+  100% { transform: translate3d(8%, 6%, 0)      scale(1.15); }
+}
+@keyframes kx-aurora-b {
+  0%   { transform: translate3d(0, 0, 0)        scale(1);    }
+  100% { transform: translate3d(-10%, -4%, 0)   scale(1.1);  }
+}
+@keyframes kx-mesh-a {
+  0%   { transform: translate3d(0, 0, 0)        scale(1)    rotate(0deg);  }
+  100% { transform: translate3d(6%, 4%, 0)      scale(1.18) rotate(8deg);  }
+}
+@keyframes kx-mesh-b {
+  0%   { transform: translate3d(0, 0, 0)        scale(1.05) rotate(0deg);  }
+  100% { transform: translate3d(-7%, -5%, 0)    scale(1.22) rotate(-10deg);}
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *:not(.kx-alive),
+  *:not(.kx-alive)::before,
+  *:not(.kx-alive)::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
-    scroll-behavior: auto !important;
     transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* Living surfaces opt out of the reduced-motion blanket — they're
+   ambient, never block interaction, and the brand depends on them
+   feeling alive. */
+.kx-alive {
+  animation-play-state: running !important;
 }
