@@ -731,44 +731,67 @@ export function KxFixtureCard({
         "bg-[var(--kx-card)] shadow-[var(--kx-shadow-md)]",
         className,
       )}
-      style={
-        live
-          ? {
-              backgroundImage:
-                "radial-gradient(120% 70% at 100% 0%, color-mix(in oklab, var(--kx-pink) 14%, transparent) 0%, transparent 55%)",
-            }
-          : undefined
-      }
     >
-      <div className="flex items-center justify-between gap-3 px-4 pt-3">
-        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--kx-fg-muted)]">
-          {kickoff}
-        </span>
-        <FixturePill status={status} />
-      </div>
-
-      <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-4">
-        <TeamBlock team={home} side="home" />
-        <ScoreChip
-          show={showScore}
-          home={scoreHome}
-          away={scoreAway}
-          live={live}
-        />
-        <TeamBlock team={away} side="away" />
-      </div>
-
-      <div className="flex items-center justify-between gap-3 border-t border-[var(--kx-border)] bg-[var(--kx-card-2)] px-4 py-2.5">
-        <span className="truncate text-[12px] text-[var(--kx-fg-muted)]">
-          {venue ?? "Venue TBD"}
-        </span>
-        {competition ? (
-          <span className="shrink-0 rounded-full bg-[var(--kx-card)] px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-[var(--kx-fg)]">
-            {competition}
+      {live ? <LiveAurora /> : null}
+      <div className="relative">
+        <div className="flex items-center justify-between gap-3 px-4 pt-3">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--kx-fg-muted)]">
+            {kickoff}
           </span>
-        ) : null}
+          <FixturePill status={status} />
+        </div>
+
+        <div className="grid grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-4">
+          <TeamBlock team={home} side="home" />
+          <ScoreChip
+            show={showScore}
+            home={scoreHome}
+            away={scoreAway}
+            live={live}
+          />
+          <TeamBlock team={away} side="away" />
+        </div>
+
+        <div className="flex items-center justify-between gap-3 border-t border-[var(--kx-border)] bg-[var(--kx-card-2)] px-4 py-2.5">
+          <span className="truncate text-[12px] text-[var(--kx-fg-muted)]">
+            {venue ?? "Venue TBD"}
+          </span>
+          {competition ? (
+            <span className="shrink-0 rounded-full bg-[var(--kx-card)] px-2.5 py-0.5 text-[11px] font-semibold tracking-wide text-[var(--kx-fg)]">
+              {competition}
+            </span>
+          ) : null}
+        </div>
       </div>
     </div>
+  );
+}
+
+/* Two soft drifting blobs — used to signal "live" on fixture surfaces. */
+function LiveAurora() {
+  return (
+    <>
+      <span
+        aria-hidden
+        className="kx-alive pointer-events-none absolute -top-1/3 -right-1/4 h-[160%] w-[70%] rounded-full opacity-70 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(closest-side, color-mix(in oklab, var(--kx-pink) 28%, transparent), transparent 70%)",
+          animation: "kx-aurora-a 14s ease-in-out infinite alternate",
+          willChange: "transform",
+        }}
+      />
+      <span
+        aria-hidden
+        className="kx-alive pointer-events-none absolute -bottom-1/3 -left-1/4 h-[160%] w-[70%] rounded-full opacity-50 blur-3xl"
+        style={{
+          background:
+            "radial-gradient(closest-side, color-mix(in oklab, var(--kx-blue) 22%, transparent), transparent 70%)",
+          animation: "kx-aurora-b 18s ease-in-out infinite alternate",
+          willChange: "transform",
+        }}
+      />
+    </>
   );
 }
 
@@ -864,6 +887,221 @@ function FixturePill({ status }: { status: FixtureStatus }) {
   return (
     <span className="inline-flex rounded-full bg-[color-mix(in_oklab,var(--kx-blue)_14%,transparent)] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.12em] text-[var(--kx-blue)]">
       Soon
+    </span>
+  );
+}
+
+/* --------------------------- KxFixtureCardVertical --------------------------- */
+/* Tall, narrow fixture card. Stacked teams with a vertical split.
+   Made for sidebars, mobile carousels, "next 5 fixtures" rails. */
+
+export function KxFixtureCardVertical({
+  home,
+  away,
+  status = "scheduled",
+  scoreHome,
+  scoreAway,
+  kickoff,
+  venue,
+  competition,
+  className,
+}: {
+  home: FixtureTeam;
+  away: FixtureTeam;
+  status?: FixtureStatus;
+  scoreHome?: number;
+  scoreAway?: number;
+  kickoff: string;
+  venue?: string;
+  competition?: string;
+  className?: string;
+}) {
+  const live = status === "live";
+  const ended = status === "ft";
+  const showScore = live || ended;
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-[var(--kx-r-card)] border border-[var(--kx-border)]",
+        "bg-[var(--kx-card)] shadow-[var(--kx-shadow-md)]",
+        "w-[200px]",
+        className,
+      )}
+    >
+      {live ? <LiveAurora /> : null}
+      <div className="relative flex flex-col">
+        {/* Top: competition + status pill */}
+        <div className="flex items-center justify-between gap-2 px-3.5 pt-3">
+          <span className="truncate text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--kx-fg-muted)]">
+            {competition ?? "Match"}
+          </span>
+          <FixturePill status={status} />
+        </div>
+
+        {/* Stack: home / divider / away */}
+        <div className="flex flex-col items-center gap-3 px-3.5 pt-4 pb-3">
+          <VerticalTeam team={home} />
+          <div className="flex items-center gap-2 text-[var(--kx-fg-muted)]">
+            {showScore ? (
+              <div
+                className={cn(
+                  "grid grid-cols-[auto_auto_auto] items-center gap-2 rounded-full px-3 py-1",
+                  "bg-[var(--kx-card-2)] [font-family:var(--kx-font-display)] text-[16px] font-extrabold tabular-nums tracking-tight text-[var(--kx-fg)]",
+                  live && "shadow-[0_0_0_3px_var(--kx-ring)]",
+                )}
+              >
+                <span>{scoreHome ?? 0}</span>
+                <span className="text-[10px] font-semibold text-[var(--kx-fg-muted)]">–</span>
+                <span>{scoreAway ?? 0}</span>
+              </div>
+            ) : (
+              <span className="text-[10px] font-bold uppercase tracking-[0.18em]">vs</span>
+            )}
+          </div>
+          <VerticalTeam team={away} />
+        </div>
+
+        {/* Footer: kickoff + venue */}
+        <div className="flex flex-col gap-0.5 border-t border-[var(--kx-border)] bg-[var(--kx-card-2)] px-3.5 py-2.5 text-center">
+          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-[var(--kx-fg)]">
+            {kickoff}
+          </span>
+          {venue ? (
+            <span className="truncate text-[10.5px] text-[var(--kx-fg-muted)]">{venue}</span>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function VerticalTeam({ team }: { team: FixtureTeam }) {
+  const color = team.crestColor ?? "var(--kx-fg-muted)";
+  return (
+    <div className="flex flex-col items-center gap-1.5">
+      <span
+        aria-hidden
+        className="grid h-12 w-12 place-items-center rounded-full text-[12px] font-extrabold uppercase tracking-wider text-[var(--kx-on-pink)] [font-family:var(--kx-font-display)]"
+        style={{
+          background: color,
+          boxShadow: "inset 0 0 0 2px color-mix(in oklab, white 18%, transparent)",
+        }}
+      >
+        {team.short ?? team.name.slice(0, 3)}
+      </span>
+      <div className="max-w-[160px] truncate text-center [font-family:var(--kx-font-display)] text-[12.5px] font-bold tracking-tight text-[var(--kx-fg)]">
+        {team.name}
+      </div>
+    </div>
+  );
+}
+
+/* --------------------------- KxFixtureCardCompact --------------------------- */
+/* Single-row, dense horizontal card. Made for "All fixtures" lists where
+   we want many on screen. No footer; competition lives on the right. */
+
+export function KxFixtureCardCompact({
+  home,
+  away,
+  status = "scheduled",
+  scoreHome,
+  scoreAway,
+  kickoff,
+  competition,
+  className,
+}: {
+  home: FixtureTeam;
+  away: FixtureTeam;
+  status?: FixtureStatus;
+  scoreHome?: number;
+  scoreAway?: number;
+  kickoff: string;
+  competition?: string;
+  className?: string;
+}) {
+  const live = status === "live";
+  const ended = status === "ft";
+  const showScore = live || ended;
+
+  return (
+    <div
+      className={cn(
+        "relative overflow-hidden rounded-[var(--kx-r-card)] border border-[var(--kx-border)]",
+        "bg-[var(--kx-card)] shadow-[var(--kx-shadow-sm)]",
+        className,
+      )}
+    >
+      {live ? <LiveAurora /> : null}
+      <div className="relative grid grid-cols-[auto_1fr_auto_1fr_auto] items-center gap-3 px-3.5 py-2.5">
+        {/* Kickoff + status, stacked */}
+        <div className="flex w-[64px] flex-col items-start gap-0.5">
+          <span className="text-[11px] font-bold tabular-nums tracking-tight text-[var(--kx-fg)]">
+            {kickoff}
+          </span>
+          <FixturePill status={status} />
+        </div>
+
+        {/* Home: name right-aligned, crest at end of row */}
+        <div className="flex min-w-0 items-center justify-end gap-2">
+          <span className="truncate [font-family:var(--kx-font-display)] text-[13px] font-bold tracking-tight text-[var(--kx-fg)]">
+            {home.name}
+          </span>
+          <CompactCrest team={home} />
+        </div>
+
+        {/* Score / vs */}
+        {showScore ? (
+          <div
+            className={cn(
+              "grid grid-cols-[auto_auto_auto] items-center gap-1.5 rounded-full px-2.5 py-0.5",
+              "bg-[var(--kx-card-2)] [font-family:var(--kx-font-display)] text-[13px] font-extrabold tabular-nums tracking-tight text-[var(--kx-fg)]",
+              live && "shadow-[0_0_0_2px_var(--kx-ring)]",
+            )}
+          >
+            <span>{scoreHome ?? 0}</span>
+            <span className="text-[10px] font-semibold text-[var(--kx-fg-muted)]">–</span>
+            <span>{scoreAway ?? 0}</span>
+          </div>
+        ) : (
+          <span className="rounded-full bg-[var(--kx-card-2)] px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.16em] text-[var(--kx-fg-muted)]">
+            vs
+          </span>
+        )}
+
+        {/* Away: crest, then name left-aligned */}
+        <div className="flex min-w-0 items-center gap-2">
+          <CompactCrest team={away} />
+          <span className="truncate [font-family:var(--kx-font-display)] text-[13px] font-bold tracking-tight text-[var(--kx-fg)]">
+            {away.name}
+          </span>
+        </div>
+
+        {/* Competition tag */}
+        {competition ? (
+          <span className="shrink-0 rounded-full bg-[var(--kx-card-2)] px-2 py-0.5 text-[10px] font-semibold tracking-wide text-[var(--kx-fg-muted)]">
+            {competition}
+          </span>
+        ) : (
+          <span aria-hidden className="w-0" />
+        )}
+      </div>
+    </div>
+  );
+}
+
+function CompactCrest({ team }: { team: FixtureTeam }) {
+  const color = team.crestColor ?? "var(--kx-fg-muted)";
+  return (
+    <span
+      aria-hidden
+      className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-[9.5px] font-extrabold uppercase tracking-wider text-[var(--kx-on-pink)] [font-family:var(--kx-font-display)]"
+      style={{
+        background: color,
+        boxShadow: "inset 0 0 0 1.5px color-mix(in oklab, white 18%, transparent)",
+      }}
+    >
+      {team.short ?? team.name.slice(0, 3)}
     </span>
   );
 }

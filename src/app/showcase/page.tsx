@@ -35,6 +35,8 @@ import {
   KxAlert,
   KxChipGroup,
   KxFixtureCard,
+  KxFixtureCardCompact,
+  KxFixtureCardVertical,
   KxKebabButton,
   KxMenu,
   KxModal,
@@ -48,6 +50,45 @@ import {
   KxMeshCard,
   KxTintedCard,
 } from "@/components/showcase/experiments";
+import {
+  KxFormPills,
+  KxStatTileSpark,
+  KxFixtureSkeleton,
+  KxRowSkeleton,
+  KxStatSkeleton,
+} from "@/components/showcase/data";
+import {
+  KxTabsUnderline,
+  KxDrawer,
+  KxCommandPalette,
+  KxEmptyState,
+  type CommandItem,
+} from "@/components/showcase/surfaces";
+import {
+  KxTicker,
+  KxOdometer,
+  KxToastQueueProvider,
+  KxMomentumBar,
+  useKxToast,
+} from "@/components/showcase/motion";
+import {
+  KxScorePicker,
+  KxLeagueTable,
+  KxMatchEventTimeline,
+  type LeagueRow,
+  type MatchEvent,
+} from "@/components/showcase/match";
+import {
+  KxClubCrest,
+  KxAvatarStack,
+  KxPlayerCard,
+} from "@/components/showcase/roster";
+import {
+  KxStepper,
+  KxFixtureRow,
+  KxStatDelta,
+  type StepItem,
+} from "@/components/showcase/flow";
 import {
   ArrowRight as PhArrowRight,
   CalendarBlank,
@@ -122,9 +163,27 @@ export default function ShowcasePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [alerts, setAlerts] = useState({ info: true, success: true, warning: true, danger: true });
 
+  // Track-1/2/3 state
+  const [pickedScore, setPickedScore] = useState<{ home: number; away: number }>({ home: 2, away: 1 });
+  const [tab2, setTab2] = useState<"all" | "live" | "finished">("all");
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const [score, setScore] = useState(127);
+  const [momentum, setMomentum] = useState(0.32);
+
+  const COMMANDS: CommandItem[] = [
+    { id: "t1", label: "Bantama Boys",     hint: "Greater Accra League", group: "Teams" },
+    { id: "t2", label: "Sagnarigu Stars",  hint: "Northern Premier",     group: "Teams" },
+    { id: "p1", label: "Richard Somda",    hint: "Forward · Bantama Boys", group: "Players" },
+    { id: "p2", label: "Derek Osei",       hint: "Midfielder · Cape Coast", group: "Players" },
+    { id: "f1", label: "BTM vs SAG",       hint: "Sat · 19:30",           group: "Fixtures" },
+    { id: "f2", label: "CCX vs TAM",       hint: "Live · 67'",            group: "Fixtures" },
+  ];
+
   return (
-    <main className="px-4 py-8 sm:px-6 lg:px-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-10">
+    <KxToastQueueProvider>
+      <main className="px-4 py-8 sm:px-6 lg:px-10">
+        <div className="mx-auto flex max-w-6xl flex-col gap-10">
         {/* ============== HEADER ============== */}
         <header
           className="flex items-start justify-between gap-4"
@@ -775,6 +834,84 @@ export default function ShowcasePage() {
           </div>
         </Section>
 
+        {/* ============== FIXTURE CARDS · VERTICAL ============== */}
+        <Section
+          title="Fixture cards · vertical"
+          caption="Sidebar / mobile carousel format. Three states."
+        >
+          <div className="flex flex-wrap gap-4">
+            <KxFixtureCardVertical
+              kickoff="Sat · 19:30"
+              status="scheduled"
+              home={{ name: "Bantama Boys",    short: "BTM", crestColor: "var(--kx-pink)" }}
+              away={{ name: "Sagnarigu Stars", short: "SAG", crestColor: "var(--kx-blue)" }}
+              venue="Baba Yara"
+              competition="Greater Accra"
+            />
+            <KxFixtureCardVertical
+              kickoff="Live · 67'"
+              status="live"
+              scoreHome={2}
+              scoreAway={1}
+              home={{ name: "Cape Coast XI",   short: "CCX", crestColor: "var(--kx-success)" }}
+              away={{ name: "Tamale United",   short: "TAM", crestColor: "var(--kx-warning)" }}
+              venue="Cape Coast"
+              competition="Friendly"
+            />
+            <KxFixtureCardVertical
+              kickoff="Sun · 15:00"
+              status="ft"
+              scoreHome={0}
+              scoreAway={3}
+              home={{ name: "Hearts Academy",  short: "HRT", crestColor: "var(--kx-danger)" }}
+              away={{ name: "Liberty FC",      short: "LBT", crestColor: "var(--kx-fg)" }}
+              venue="Madina Astro"
+              competition="Cup R16"
+            />
+          </div>
+        </Section>
+
+        {/* ============== FIXTURE CARDS · COMPACT ============== */}
+        <Section
+          title="Fixture cards · compact"
+          caption="Single-row, dense. Use in 'all fixtures' lists and rails."
+        >
+          <div className="grid gap-2">
+            <KxFixtureCardCompact
+              kickoff="19:30"
+              status="scheduled"
+              home={{ name: "Bantama Boys",    short: "BTM", crestColor: "var(--kx-pink)" }}
+              away={{ name: "Sagnarigu Stars", short: "SAG", crestColor: "var(--kx-blue)" }}
+              competition="GAL"
+            />
+            <KxFixtureCardCompact
+              kickoff="67'"
+              status="live"
+              scoreHome={2}
+              scoreAway={1}
+              home={{ name: "Cape Coast XI",   short: "CCX", crestColor: "var(--kx-success)" }}
+              away={{ name: "Tamale United",   short: "TAM", crestColor: "var(--kx-warning)" }}
+              competition="FRN"
+            />
+            <KxFixtureCardCompact
+              kickoff="FT"
+              status="ft"
+              scoreHome={0}
+              scoreAway={3}
+              home={{ name: "Hearts Academy",  short: "HRT", crestColor: "var(--kx-danger)" }}
+              away={{ name: "Liberty FC",      short: "LBT", crestColor: "var(--kx-fg)" }}
+              competition="CUP"
+            />
+            <KxFixtureCardCompact
+              kickoff="21:00"
+              status="scheduled"
+              home={{ name: "Kotoko Babies",   short: "KOT", crestColor: "var(--kx-warning)" }}
+              away={{ name: "Asante Eleven",   short: "ASE", crestColor: "var(--kx-success)" }}
+              competition="GPL"
+            />
+          </div>
+        </Section>
+
         {/* ============== TABLE ============== */}
         <Section title="Leaderboard table" caption="Sticky header · sortable · row hover plate.">
           <KxTable
@@ -824,8 +961,479 @@ export default function ShowcasePage() {
           Kalaanba · UI Foundation v0
         </footer>
       </div>
-    </main>
+
+      {/* ============== TRACK 1 · DATA PRIMITIVES ============== */}
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-10 px-0">
+        <Section title="Score picker" caption="The control organisers tap to enter a final score.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <KxCard padded="lg">
+              <Caption>Two-up stepper for home / away goals</Caption>
+              <div className="mt-4">
+                <KxScorePicker
+                  home={pickedScore.home}
+                  away={pickedScore.away}
+                  homeName="Bantama Boys"
+                  awayName="Sagnarigu Stars"
+                  onChange={setPickedScore}
+                />
+              </div>
+              <p className="mt-3 text-[12.5px] text-[var(--kx-fg-muted)]">
+                Tap <span className="font-semibold text-[var(--kx-fg)]">+</span> to add a goal,
+                then publish the result — it propagates into the league table.
+              </p>
+            </KxCard>
+
+            <KxCard padded="lg">
+              <Caption>Form pills</Caption>
+              <div className="mt-4 flex flex-col gap-3">
+                <div className="flex items-center gap-3">
+                  <span className="w-24 text-[12px] font-semibold text-[var(--kx-fg)]">Bantama Boys</span>
+                  <KxFormPills results={["W", "W", "D", "L", "W"]} />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-24 text-[12px] font-semibold text-[var(--kx-fg)]">Sagnarigu</span>
+                  <KxFormPills results={["L", "D", "W", "L", "W"]} />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-24 text-[12px] font-semibold text-[var(--kx-fg)]">Cape Coast</span>
+                  <KxFormPills results={["W", "W", "W", "D", "W"]} size="sm" />
+                </div>
+              </div>
+            </KxCard>
+          </div>
+        </Section>
+
+        <Section title="Stat tile · with sparkline" caption="Number + trend + last-N sparkline.">
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            <KxStatTileSpark
+              value={9.6}
+              label="Match Rating"
+              series={[7.4, 7.8, 8.1, 8.4, 8.0, 8.9, 9.2, 9.6]}
+              delta={12}
+              tone="pink"
+            />
+            <KxStatTileSpark
+              value={24}
+              label="Goals"
+              series={[12, 14, 17, 18, 19, 21, 23, 24]}
+              delta={3}
+              tone="blue"
+              suffix="goals"
+            />
+            <KxStatTileSpark
+              value={4.8}
+              label="Form Index"
+              series={[5.2, 5.0, 4.7, 4.6, 4.8, 4.4, 4.9, 4.8]}
+              delta={-4}
+              tone="warning"
+            />
+          </div>
+        </Section>
+
+        <Section title="Skeletons" caption="Loading placeholders for fixtures, table rows, and stat tiles.">
+          <div className="grid gap-4">
+            <div className="grid gap-4 md:grid-cols-3">
+              <KxFixtureSkeleton />
+              <KxFixtureSkeleton />
+              <KxFixtureSkeleton />
+            </div>
+            <div className="grid gap-2">
+              <KxRowSkeleton />
+              <KxRowSkeleton />
+              <KxRowSkeleton />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <KxStatSkeleton />
+              <KxStatSkeleton />
+              <KxStatSkeleton />
+            </div>
+          </div>
+        </Section>
+
+        {/* ============== TRACK 2 · SURFACES & NAVIGATION ============== */}
+        <Section title="Tabs · sliding underline" caption="Same thumb pattern as pagination, applied to tab triggers.">
+          <KxCard padded="lg">
+            <KxTabsUnderline
+              value={tab2}
+              onChange={setTab2}
+              items={[
+                { value: "all", label: "All fixtures" },
+                { value: "live", label: "Live now" },
+                { value: "finished", label: "Finished" },
+              ]}
+            />
+            <div
+              key={tab2}
+              className="mt-5 rounded-[var(--kx-r-tile)] bg-[var(--kx-card-2)] p-4 text-sm text-[var(--kx-fg-muted)]"
+              style={{ animation: "kx-pop-in 0.28s var(--kx-ease-out) both" }}
+            >
+              Showing <span className="text-[var(--kx-fg)] font-semibold">{tab2}</span>
+            </div>
+          </KxCard>
+        </Section>
+
+        <Section title="Drawer & command palette" caption="Right-side sheet (filters / bet slip) + ⌘K palette.">
+          <KxCard padded="lg">
+            <div className="flex flex-wrap gap-3">
+              <KxButton onClick={() => setDrawerOpen(true)}>Open drawer</KxButton>
+              <KxButton variant="secondary" onClick={() => setPaletteOpen(true)}>
+                Open command palette
+              </KxButton>
+            </div>
+          </KxCard>
+          <KxDrawer
+            open={drawerOpen}
+            onClose={() => setDrawerOpen(false)}
+            title="Filters"
+            footer={
+              <div className="flex justify-end gap-2">
+                <KxButton variant="ghost" onClick={() => setDrawerOpen(false)}>Cancel</KxButton>
+                <KxButton onClick={() => setDrawerOpen(false)}>Apply</KxButton>
+              </div>
+            }
+          >
+            <div className="flex flex-col gap-4 py-2 text-sm text-[var(--kx-fg-muted)]">
+              <p>Drawer body is freeform. Drop any fields, lists, or summaries here.</p>
+              <KxFormPills results={["W", "W", "D", "L", "W"]} />
+              <KxScorePicker
+                home={pickedScore.home}
+                away={pickedScore.away}
+                homeName="Bantama Boys"
+                awayName="Sagnarigu Stars"
+                onChange={setPickedScore}
+              />
+            </div>
+          </KxDrawer>
+          <ToastConsumer>
+            {(toast) => (
+              <KxCommandPalette
+                open={paletteOpen}
+                onClose={() => setPaletteOpen(false)}
+                items={COMMANDS}
+                onSelect={(it) => toast.push({ title: `Opened: ${it.label}`, tone: "blue" })}
+              />
+            )}
+          </ToastConsumer>
+        </Section>
+
+        <Section title="Empty state" caption="Calm tinted-wash surface for zero-state moments.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <KxEmptyState
+              icon={<TrophyIcon />}
+              title="No live matches right now"
+              description="Saturday's slate kicks off at 15:00. We'll surface the first one here."
+              action={<KxButton size="sm">Browse fixtures</KxButton>}
+              tone="pink"
+            />
+            <KxEmptyState
+              icon={<SearchIcon />}
+              title="No results"
+              description="Try a different team, player, or fixture name."
+              tone="blue"
+            />
+          </div>
+        </Section>
+
+        {/* ============== TRACK 3 · LIVE / MOTION ============== */}
+        <Section title="Ticker" caption="Pause-on-hover marquee. Edge-faded.">
+          <KxTicker speed={48}>
+            <span className="text-[12.5px] font-semibold text-[var(--kx-fg)]">
+              <span className="text-[var(--kx-pink)]">LIVE</span> · CCX 2 – 1 TAM
+            </span>
+            <span className="text-[12.5px] text-[var(--kx-fg-muted)]">
+              FT · HRT 0 – 3 LBT
+            </span>
+            <span className="text-[12.5px] text-[var(--kx-fg-muted)]">
+              Sat 19:30 · BTM vs SAG
+            </span>
+            <span className="text-[12.5px] text-[var(--kx-fg-muted)]">
+              Sun 15:00 · KOT vs ASE
+            </span>
+            <span className="text-[12.5px] text-[var(--kx-blue)]">
+              Boost: Over 2.5 · 1.75 → 1.92
+            </span>
+          </KxTicker>
+        </Section>
+
+        <Section title="Odometer" caption="Per-digit flip when value changes. Smooth, satisfying.">
+          <KxCard padded="lg">
+            <div className="flex flex-wrap items-center gap-6">
+              <div className="text-[40px] font-extrabold leading-none text-[var(--kx-fg)]">
+                <KxOdometer value={score} />
+              </div>
+              <div className="flex gap-2">
+                <KxButton size="sm" variant="secondary" onClick={() => setScore((s: number) => Math.max(0, s - 7))}>
+                  −7
+                </KxButton>
+                <KxButton size="sm" onClick={() => setScore((s: number) => s + 13)}>
+                  +13
+                </KxButton>
+                <KxButton size="sm" variant="ghost" onClick={() => setScore(Math.floor(Math.random() * 9999))}>
+                  Random
+                </KxButton>
+              </div>
+            </div>
+          </KxCard>
+        </Section>
+
+        <Section title="Toast queue" caption="Stack of auto-dismissing toasts with progress bar. Hover to pause.">
+          <KxCard padded="lg">
+            <ToastConsumer>
+              {(toast) => (
+                <div className="flex flex-wrap gap-2">
+                  <KxButton onClick={() => toast.push({ title: "Goal verified", description: "Derek Osei (62') — Bantama Boys 2 – 1 Sagnarigu", tone: "primary" })}>
+                    Push primary
+                  </KxButton>
+                  <KxButton variant="blue" onClick={() => toast.push({ title: "Settings saved", tone: "blue" })}>
+                    Push blue
+                  </KxButton>
+                  <KxButton variant="secondary" onClick={() => toast.push({ title: "Fixture published", description: "Sat 19:30 · Bantama Boys vs Sagnarigu", tone: "success" })}>
+                    Push success
+                  </KxButton>
+                  <KxButton variant="ghost" onClick={() => toast.push({ title: "Match suspended", description: "Weather review at half time.", tone: "warning" })}>
+                    Push warning
+                  </KxButton>
+                  <KxButton variant="ghost" onClick={() => toast.push({ title: "Verification failed", description: "Two captain signatures required to publish.", tone: "danger" })}>
+                    Push danger
+                  </KxButton>
+                </div>
+              )}
+            </ToastConsumer>
+          </KxCard>
+        </Section>
+
+        <Section title="Momentum bar" caption="Live attacking pressure strip. Drag the slider to feel it shift.">
+          <KxCard padded="lg">
+            <KxMomentumBar value={momentum} homeLabel="BTM" awayLabel="SAG" />
+            <div className="mt-5">
+              <input
+                type="range"
+                min={-100}
+                max={100}
+                value={Math.round(momentum * 100)}
+                onChange={(e) => setMomentum(parseInt(e.target.value, 10) / 100)}
+                className="w-full accent-[var(--kx-pink)]"
+              />
+            </div>
+          </KxCard>
+        </Section>
+
+        <footer className="pt-6 pb-12 text-center text-xs uppercase tracking-[0.18em] text-[var(--kx-fg-muted)]">
+          Kalaanba · Track 1–3
+        </footer>
+      </div>
+
+      {/* ============== TRACK 4 · MATCH & COMPETITION ============== */}
+      <div className="mx-auto mt-12 flex max-w-6xl flex-col gap-10 px-0">
+        <Section title="League table" caption="Standings with promotion / playoff / drop tints.">
+          <KxLeagueTable
+            caption="Tamale Premier League — Matchweek 12"
+            highlightTeam="Bantama Boys"
+            rows={LEAGUE_ROWS}
+          />
+        </Section>
+
+        <Section title="Match event timeline" caption="Goals · cards · subs against the match clock.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <KxMatchEventTimeline events={MATCH_EVENTS} />
+            <KxCard padded="lg">
+              <Caption>Notes</Caption>
+              <p className="mt-3 text-[13px] text-[var(--kx-fg-muted)]">
+                Home events sit on the left, away events on the right, with the match clock running
+                down the middle. Phase markers (kick off, half time, full time) span the full row.
+              </p>
+            </KxCard>
+          </div>
+        </Section>
+
+        {/* ============== TRACK 5 · PLAYER & CLUB ============== */}
+        <Section title="Player card" caption="The verified player tile — the long-term product.">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <KxPlayerCard
+              name="Derek Osei"
+              position="Forward"
+              jersey={9}
+              clubName="Bantama Boys"
+              city="Tamale"
+              clubCrest={<KxClubCrest name="Bantama Boys" tone="pink" size="sm" />}
+              stats={{ apps: 18, goals: 14, assists: 6 }}
+            />
+            <KxPlayerCard
+              name="Richard Somda"
+              position="Midfielder"
+              jersey={8}
+              clubName="Sagnarigu Stars"
+              city="Sagnarigu"
+              clubCrest={<KxClubCrest name="Sagnarigu Stars" tone="blue" size="sm" />}
+              stats={{ apps: 17, goals: 4, assists: 11 }}
+            />
+            <KxPlayerCard
+              name="Kwame Mensah"
+              position="Goalkeeper"
+              jersey={1}
+              clubName="Cape Coast XI"
+              city="Cape Coast"
+              verified={false}
+              clubCrest={<KxClubCrest name="Cape Coast XI" size="sm" />}
+              stats={{ apps: 18, goals: 0, assists: 1 }}
+            />
+          </div>
+        </Section>
+
+        <Section title="Club crest & avatar stack" caption="Initials fallback when there is no uploaded crest.">
+          <div className="grid gap-4 md:grid-cols-2">
+            <KxCard padded="lg">
+              <Caption>Crests · pink, blue, neutral · sm/md/lg</Caption>
+              <div className="mt-4 flex flex-wrap items-end gap-4">
+                <KxClubCrest name="Bantama Boys" tone="pink" size="lg" />
+                <KxClubCrest name="Sagnarigu Stars" tone="blue" size="lg" />
+                <KxClubCrest name="Cape Coast XI" size="lg" />
+                <KxClubCrest name="Tamale Lions" tone="pink" />
+                <KxClubCrest name="Northern United" tone="blue" />
+                <KxClubCrest name="Accra City" />
+                <KxClubCrest name="Dagbon FC" tone="pink" size="sm" />
+                <KxClubCrest name="Ridge Boys" tone="blue" size="sm" />
+              </div>
+            </KxCard>
+
+            <KxCard padded="lg">
+              <Caption>Avatar stack with overflow</Caption>
+              <div className="mt-4 flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <span className="text-[12.5px] font-semibold text-[var(--kx-fg-muted)]">Squad</span>
+                  <KxAvatarStack
+                    people={[
+                      { name: "Derek Osei", tone: "pink" },
+                      { name: "Richard Somda", tone: "blue" },
+                      { name: "Kwame Mensah" },
+                      { name: "Yaw Boateng", tone: "pink" },
+                      { name: "Ibrahim Issah", tone: "blue" },
+                      { name: "Joseph Tetteh" },
+                      { name: "Mahama Awal", tone: "pink" },
+                    ]}
+                    max={4}
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[12.5px] font-semibold text-[var(--kx-fg-muted)]">Attendees</span>
+                  <KxAvatarStack
+                    size="lg"
+                    people={[
+                      { name: "Derek Osei", tone: "pink" },
+                      { name: "Richard Somda", tone: "blue" },
+                      { name: "Kwame Mensah" },
+                    ]}
+                  />
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-[12.5px] font-semibold text-[var(--kx-fg-muted)]">Sm</span>
+                  <KxAvatarStack
+                    size="sm"
+                    people={[
+                      { name: "A B" },
+                      { name: "C D", tone: "pink" },
+                      { name: "E F", tone: "blue" },
+                      { name: "G H" },
+                      { name: "I J", tone: "pink" },
+                    ]}
+                    max={3}
+                  />
+                </div>
+              </div>
+            </KxCard>
+          </div>
+        </Section>
+
+        {/* ============== TRACK 6 · ORGANISER FLOW & DELTAS ============== */}
+        <Section title="Stepper" caption="Multi-step wizard header (create competition, register club).">
+          <KxCard padded="lg">
+            <KxStepper steps={STEPPER_STEPS} />
+            <p className="mt-4 text-[12.5px] text-[var(--kx-fg-muted)]">
+              Step 3 of 5 active · two complete · two upcoming. Bubble + label + connector
+              all reflect status.
+            </p>
+          </KxCard>
+        </Section>
+
+        <Section title="Fixture row" caption="Compact list-row variant of a fixture (the dense view).">
+          <KxCard padded="lg">
+            <div className="flex flex-col gap-2">
+              <KxFixtureRow
+                kickoff={new Date(Date.now() + 1000 * 60 * 60 * 27)}
+                homeName="Bantama Boys"
+                awayName="Sagnarigu Stars"
+                homeCrest={<KxClubCrest name="Bantama Boys" tone="pink" size="sm" />}
+                awayCrest={<KxClubCrest name="Sagnarigu Stars" tone="blue" size="sm" />}
+                state="scheduled"
+                meta="Tamale PL"
+                onClick={() => undefined}
+              />
+              <KxFixtureRow
+                kickoff={new Date(Date.now() - 1000 * 60 * 67)}
+                homeName="Cape Coast XI"
+                awayName="Northern United"
+                homeCrest={<KxClubCrest name="Cape Coast XI" size="sm" />}
+                awayCrest={<KxClubCrest name="Northern United" tone="blue" size="sm" />}
+                score={[1, 1]}
+                state="live"
+                liveClock="67'"
+                meta="Coastal Cup"
+                onClick={() => undefined}
+              />
+              <KxFixtureRow
+                kickoff={new Date(Date.now() - 1000 * 60 * 60 * 26)}
+                homeName="Tamale Lions"
+                awayName="Dagbon FC"
+                homeCrest={<KxClubCrest name="Tamale Lions" tone="pink" size="sm" />}
+                awayCrest={<KxClubCrest name="Dagbon FC" tone="pink" size="sm" />}
+                score={[3, 0]}
+                state="final"
+                meta="Tamale PL"
+              />
+              <KxFixtureRow
+                kickoff={new Date(Date.now() + 1000 * 60 * 60 * 96)}
+                homeName="Accra City"
+                awayName="Ridge Boys"
+                homeCrest={<KxClubCrest name="Accra City" size="sm" />}
+                awayCrest={<KxClubCrest name="Ridge Boys" tone="blue" size="sm" />}
+                state="postponed"
+                meta="Friendly"
+              />
+            </div>
+          </KxCard>
+        </Section>
+
+        <Section title="Stat delta" caption="Tiny ±change pill for player & team stats.">
+          <KxCard padded="lg">
+            <div className="flex flex-wrap items-center gap-3">
+              <KxStatDelta value={3} label="goals this week" />
+              <KxStatDelta value={-2} label="ranking" invert />
+              <KxStatDelta value={0} label="form" />
+              <KxStatDelta value={12} unit="%" label="possession" />
+              <KxStatDelta value={-5} label="conceded" invert />
+              <KxStatDelta value={1} size="sm" />
+              <KxStatDelta value={-1} size="sm" />
+            </div>
+            <p className="mt-4 text-[12.5px] text-[var(--kx-fg-muted)]">
+              <span className="font-semibold text-[var(--kx-fg)]">invert</span> flips the polarity for
+              stats where lower is better (goals conceded, ranking position).
+            </p>
+          </KxCard>
+        </Section>
+
+        <footer className="pt-6 pb-12 text-center text-xs uppercase tracking-[0.18em] text-[var(--kx-fg-muted)]">
+          Kalaanba · Track 4–6
+        </footer>
+      </div>
+      </main>
+    </KxToastQueueProvider>
   );
+}
+
+/* ---------- Render-prop helper so toast hook runs inside the provider ---------- */
+function ToastConsumer({ children }: { children: (t: ReturnType<typeof useKxToast>) => React.ReactNode }) {
+  const t = useKxToast();
+  return <>{children(t)}</>;
 }
 
 /* ---------- Small layout helpers, local to the showcase ---------- */
@@ -864,6 +1472,40 @@ function Caption({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+/* ---------- Track 4–6 demo data ---------- */
+
+const LEAGUE_ROWS: LeagueRow[] = [
+  { rank: 1,  team: "Bantama Boys",     played: 12, won: 9, drawn: 2, lost: 1, gf: 28, ga: 9,  zone: "promotion",   form: ["W","W","D","L","W"] },
+  { rank: 2,  team: "Sagnarigu Stars",  played: 12, won: 8, drawn: 2, lost: 2, gf: 24, ga: 11, zone: "promotion",   form: ["L","W","W","W","D"] },
+  { rank: 3,  team: "Cape Coast XI",    played: 12, won: 7, drawn: 3, lost: 2, gf: 22, ga: 13, zone: "playoff",     form: ["W","D","W","W","D"] },
+  { rank: 4,  team: "Northern United",  played: 12, won: 6, drawn: 3, lost: 3, gf: 19, ga: 14,                       form: ["D","W","L","W","W"] },
+  { rank: 5,  team: "Tamale Lions",     played: 12, won: 5, drawn: 4, lost: 3, gf: 17, ga: 14,                       form: ["W","D","D","L","W"] },
+  { rank: 6,  team: "Dagbon FC",        played: 12, won: 4, drawn: 4, lost: 4, gf: 15, ga: 15,                       form: ["L","D","W","D","L"] },
+  { rank: 7,  team: "Ridge Boys",       played: 12, won: 3, drawn: 4, lost: 5, gf: 12, ga: 18,                       form: ["L","W","L","D","L"] },
+  { rank: 8,  team: "Accra City",       played: 12, won: 2, drawn: 3, lost: 7, gf:  9, ga: 22, zone: "relegation",  form: ["L","L","D","L","W"] },
+  { rank: 9,  team: "Greater Sahara",   played: 12, won: 1, drawn: 2, lost: 9, gf:  6, ga: 26, zone: "relegation",  form: ["L","L","L","L","D"] },
+];
+
+const MATCH_EVENTS: MatchEvent[] = [
+  { minute: 0,  side: "home", type: "kickoff" },
+  { minute: 12, side: "home", type: "goal",   player: "Derek Osei",      detail: "assist · R. Somda" },
+  { minute: 28, side: "away", type: "yellow", player: "I. Issah",        detail: "tactical foul" },
+  { minute: 41, side: "away", type: "goal",   player: "Yaw Boateng",     detail: "from a corner" },
+  { minute: 45, side: "home", type: "halftime" },
+  { minute: 58, side: "home", type: "sub",    player: "M. Awal",         detail: "in for J. Tetteh" },
+  { minute: 67, side: "home", type: "goal",   player: "Derek Osei",      detail: "penalty" },
+  { minute: 78, side: "away", type: "red",    player: "K. Adjei",        detail: "second yellow" },
+  { minute: 90, side: "home", type: "fulltime" },
+];
+
+const STEPPER_STEPS: StepItem[] = [
+  { key: "club",      label: "Register club",     hint: "Name, logo, captain", status: "complete" },
+  { key: "roster",    label: "Add roster",        hint: "12 players added",     status: "complete" },
+  { key: "comp",      label: "Pick competition",  hint: "Tamale PL · 25/26",    status: "current" },
+  { key: "fixtures",  label: "Confirm fixtures",  hint: "12 matchweeks",        status: "upcoming" },
+  { key: "publish",   label: "Publish to WhatsApp", hint: "3 groups",           status: "upcoming" },
+];
 
 /* ---------- Leaderboard demo data ---------- */
 

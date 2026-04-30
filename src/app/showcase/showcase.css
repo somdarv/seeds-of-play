@@ -145,21 +145,13 @@
   0%   { transform: translate3d(0, 0, 0)        scale(1);    }
   100% { transform: translate3d(-10%, -4%, 0)   scale(1.1);  }
 }
-@keyframes kx-mesh-morph {
-  0% {
-    background-position:
-      0% 0%,
-      100% 0%,
-      80% 100%,
-      0% 100%;
-  }
-  100% {
-    background-position:
-      10% 8%,
-      90% 12%,
-      70% 92%,
-      6% 90%;
-  }
+@keyframes kx-mesh-a {
+  0%   { transform: translate3d(0, 0, 0)        scale(1)    rotate(0deg);  }
+  100% { transform: translate3d(6%, 4%, 0)      scale(1.18) rotate(8deg);  }
+}
+@keyframes kx-mesh-b {
+  0%   { transform: translate3d(0, 0, 0)        scale(1.05) rotate(0deg);  }
+  100% { transform: translate3d(-7%, -5%, 0)    scale(1.22) rotate(-10deg);}
 }
 
 /* Subtle scrollbar inside scoped popovers */
@@ -173,11 +165,18 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .kx-root *,
-  .kx-root *::before,
-  .kx-root *::after {
+  .kx-root *:not(.kx-alive),
+  .kx-root *:not(.kx-alive)::before,
+  .kx-root *:not(.kx-alive)::after {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
   }
+}
+
+/* Living surfaces (aurora / mesh / drifting blobs) opt out of the
+   reduced-motion blanket — they're ambient, never block interaction,
+   and the brand depends on them feeling alive. */
+.kx-root .kx-alive {
+  animation-play-state: running !important;
 }
