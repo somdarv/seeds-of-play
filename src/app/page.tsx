@@ -1,9 +1,11 @@
+import { AgentOSBanner } from "@/components/site/agent-os-banner";
 import { SiteHeader } from "@/components/site/site-header";
 import { SiteHero } from "@/components/site/site-hero";
 
 export default function Home() {
   return (
     <>
+      <AgentOSBanner />
       <SiteHeader />
       <main>
         <SiteHero />
