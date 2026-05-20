@@ -14,18 +14,22 @@ Treat every rule below as a hard rule unless the rule itself says "guideline" or
 ## 1. File Size & Module Shape
 
 ### Hard limits
+
 - **No source file exceeds 400 lines.** If it would, split it. Tests count separately.
 - **No function/method exceeds 50 lines** (excluding signature + braces). If it would, extract.
 - **No class exceeds 250 lines.** If it would, the class has more than one responsibility — split.
 - **No file has more than one default export.** Named exports preferred everywhere.
 
 ### Soft limits (guideline — justify in PR if exceeded)
+
 - Functions ≤ 25 lines, ≤ 4 parameters.
 - Classes ≤ 7 public methods.
 - React components ≤ 200 lines of JSX + logic combined.
 
 ### When to split
+
 A file is too big when **any of**:
+
 - You scroll to find the function you're editing.
 - Two unrelated concerns share the same file.
 - A change to concern A forces re-reading concern B.
@@ -49,6 +53,7 @@ A file is too big when **any of**:
 ## 3. Reusability & Composition
 
 ### Backend (Laravel)
+
 - **Domain logic lives in `app/Modules/<Engine>/Domain/`.** It is **framework-agnostic** — no Eloquent, no HTTP, no Facades inside domain classes.
 - **Application services** (`Application/`) orchestrate domain + persistence + events. One public method per use case.
 - **Repositories** (`Infrastructure/`) are the only place Eloquent is touched outside of read-projections.
@@ -57,6 +62,7 @@ A file is too big when **any of**:
 - **DRY at the domain level, WET at the boundary.** Two controllers may legitimately repeat 3 lines of validation — that's fine. Two domain rules being almost-duplicates is a bug.
 
 ### Frontend (Next.js)
+
 - **Components live in `src/components/<area>/`.** Three flavors:
   1. `ui/` — pure, presentational, no data fetching, no business logic. Reusable across the app.
   2. `<feature>/` — feature-bound containers that compose `ui/` primitives and call hooks.
@@ -67,9 +73,11 @@ A file is too big when **any of**:
 - **Server components by default.** Add `"use client"` only when a component actually needs interactivity or browser APIs.
 
 ### Rule of three
+
 A pattern repeated **3 times** must be extracted. Twice is a coincidence; three times is duplication.
 
 ### Avoid premature abstraction
+
 Do not introduce a base class, generic, or shared util to support a single caller. Wait until the second caller arrives and the third is foreseeable.
 
 ---
@@ -113,6 +121,7 @@ Do not introduce a base class, generic, or shared util to support a single calle
 ## 6. Database & Data Layer
 
 ### Schema discipline
+
 - **Every table has** `id` (UUIDv7 preferred), `created_at`, `updated_at`. Soft-deletable tables have `archived_at` (never `deleted_at` semantically — see Constitution Law 13).
 - **Schema-per-engine.** Tables live in `<engine>.table_name`. No cross-schema foreign keys (Constitution Law 1; enforced in CI).
 - **Naming**: tables plural snake_case (`match_events`), columns snake_case, FK columns `<entity>_id`.
@@ -120,6 +129,7 @@ Do not introduce a base class, generic, or shared util to support a single calle
 - **Append-only tables** (`rp_ledger`, `outbox_events`, `admin_audit_log`, `analytics_events`) have no `updated_at` and no UPDATE/DELETE permission for the application role.
 
 ### Indexing
+
 - **Index every foreign key.** Always.
 - **Index every column used in a `WHERE`, `ORDER BY`, or `JOIN` on a hot path.** Run `EXPLAIN` before merging if the query is on a hot read.
 - **Composite indexes for compound queries** — put the most-selective column first, the column used in equality before range.
@@ -128,6 +138,7 @@ Do not introduce a base class, generic, or shared util to support a single calle
 - **Time-series tables are partitioned** monthly (`analytics_events`, `admin_audit_log`).
 
 ### Migrations
+
 - **One concern per migration.** A migration adds a column **or** an index **or** a constraint — not three at once.
 - **Migrations are reversible.** `down()` is implemented and tested. If truly irreversible, document why and provide a manual rollback in the PR.
 - **Backfills are separate migrations from schema changes** so they can be re-run independently.
@@ -135,6 +146,7 @@ Do not introduce a base class, generic, or shared util to support a single calle
 - **Never edit a migration that has been merged to main.** Add a new one.
 
 ### Queries
+
 - **No raw SQL inside controllers or domain code.** Repositories own queries.
 - **No N+1.** Use `with()` (Laravel) eager loads or DataLoader-style batching.
 - **Pagination is mandatory** on every list endpoint. Default page size 25, max 100.
@@ -145,11 +157,13 @@ Do not introduce a base class, generic, or shared util to support a single calle
 ## 7. API Design & Versioning
 
 ### URL & versioning
+
 - **All public APIs live under `/api/v1/`.** Breaking changes go to `/api/v2/` — never silently changed under `/v1/`.
 - **Versions are additive within a major.** Adding fields is non-breaking. Removing or changing the type of a field requires a new major.
 - **Deprecate, don't delete.** Mark old endpoints with `Deprecation` and `Sunset` HTTP headers. Keep them alive for ≥ 90 days after the replacement ships.
 
 ### Request/response shape
+
 - **REST verbs map cleanly**: GET (read), POST (create), PATCH (partial update), PUT (full replace — rare), DELETE (archive, not delete).
 - **Resource URLs are plural nouns**: `/api/v1/matches`, `/api/v1/matches/{id}`, `/api/v1/matches/{id}/events`.
 - **Filtering is via query params**, not nested routes: `/api/v1/matches?status=result_confirmed`.
@@ -164,17 +178,20 @@ Do not introduce a base class, generic, or shared util to support a single calle
 - **Error codes are stable strings** (`engine.specific_reason`). Never expose stack traces or raw exception messages.
 
 ### Headers
+
 - **`Idempotency-Key` is required** on every POST/PATCH/PUT that mutates state. Server rejects with `400` if absent on writes.
 - **`Authorization: Bearer <token>`** for authenticated calls.
 - **`Accept-Language`** respected for configurable labels (logic stays on internal keys).
 - **`X-Request-Id`** generated server-side if not provided, echoed on every response.
 
 ### Contracts
+
 - **Every endpoint has an OpenAPI 3.1 spec** in `contracts/api/<engine>/`.
 - **The TS client is generated** — never hand-written. CI fails if generated client drifts from spec.
 - **Backwards-compatibility tests** run against the previous major's contract on every PR.
 
 ### Rate limiting & pagination
+
 - **All public endpoints are rate-limited.** Tiers: anonymous (lowest), authenticated, internal (highest).
 - **Pagination uses `?cursor=<opaque>&limit=<n>`** for hot endpoints (feeds, ledgers). Offset pagination only for admin views.
 - **Hot list endpoints expose `etag` + honor `If-None-Match`.**
@@ -287,6 +304,7 @@ Do not introduce a base class, generic, or shared util to support a single calle
 ## 17. Refusal Triggers
 
 You **MUST refuse** to write code that:
+
 - Hardcodes a configurable value.
 - Crosses engine module boundaries directly.
 - Updates a balance in place instead of appending to a ledger.
